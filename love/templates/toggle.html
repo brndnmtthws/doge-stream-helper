@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Toggle Doge Stream</title>
+    <meta name="description" content="Toggle Doge Stream">
+    <meta name="author" content="Brenden Matthews">
+
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+
+<body>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <h2>🦊 Doge stream</h2>
+
+    <label class="container">Off
+        <input type="radio" id="off" name="doge" value="off"">
+        <span class=" checkmark"></span>
+    </label>
+    <label class="container">On
+        <input type="radio" id="on" name="doge" value="on">
+        <span class="checkmark"></span>
+    </label>
+    <label class="container">Paused
+        <input type="radio" id="paused" name="doge" value="paused">
+        <span class="checkmark"></span>
+    </label>
+    <script>
+        function update_state() {
+            $.ajax({
+                    url: "/togglestate",
+                    type: "GET",
+                    dataType: "json",
+                })
+                .done(function (json) {
+                    console.log(json);
+                    $("#" + json.state).prop("checked", true);
+                });
+            setTimeout(update_state, 1500);
+        }
+        $(document).ready(function () {
+            update_state();
+        });
+        $('input[type=radio][name=doge]').change(function () {
+            $.ajax({
+                    url: "/togglestate",
+                    type: "PUT",
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        "state": this.value,
+                    }),
+                })
+                .done(function (json) {
+                    $("#" + json.state).prop("checked", true);
+                });
+        });
+    </script>
+</body>
+
+</html>

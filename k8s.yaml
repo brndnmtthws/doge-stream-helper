@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+  labels:
+    run: doge-helper
+  name: doge-helper
+  namespace: default
+spec:
+  replicas: 1
+  serviceName: doge-helper
+  selector:
+    matchLabels:
+      run: doge-helper
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: doge-helper
+        run: doge-helper
+    spec:
+      containers:
+        - image: doge-helper
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /togglestate
+              port: 5000
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: doge-helper
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+          - name: DOGE_DATA
+            value: "/data/data.json"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: doge-helper
+  labels:
+    run: doge-helper
+spec:
+  selector:
+    app: doge-helper
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

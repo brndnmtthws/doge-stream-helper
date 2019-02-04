@@ -1,0 +1,27 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["pull", "${_IMAGE_NAME}:latest"]
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "${_IMAGE_NAME}:$REVISION_ID",
+        "-t",
+        "${_IMAGE_NAME}:latest",
+        ".",
+      ]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_IMAGE_NAME}:$REVISION_ID"]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_IMAGE_NAME}:latest"]
+  - name: "gcr.io/cloud-builders/kubectl"
+    args:
+      - set
+      - image
+      - statefulset
+      - doge-helper
+      - doge-helper=${_IMAGE_NAME}:$REVISION_ID
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=us-central1-a"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cluster-1"
