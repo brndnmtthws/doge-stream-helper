@@ -17,12 +17,12 @@ def send_css(path):
 
 
 def get_data():
-    with open('/data/data.json', 'r') as infile:
+    with open(doge_data, 'r') as infile:
         return json.load(infile)
 
 
 def set_data(data):
-    with open('/data/data.json', 'w') as outfile:
+    with open(doge_data, 'w') as outfile:
         json.dump(data, outfile)
 
 
